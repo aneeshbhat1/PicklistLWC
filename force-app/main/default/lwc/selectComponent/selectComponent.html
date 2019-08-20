@@ -1,0 +1,23 @@
+<template>    
+    <div class="slds-form-element">
+        <label class="slds-form-element__label">
+            <template if:true={isAttributeRequired}>
+                <abbr title="required">*</abbr>
+            </template>
+            <span class="">{label}</span>
+        </label>
+        <div class="slds-form-element__control">
+            <div class="slds-select_container">
+                <select class="slds-select" 
+                        onchange={selectionChangeHandler} 
+                        disabled={isPicklistDisabled}
+                        required={isAttributeRequired}>
+                    <option value="Select">Select</option>
+                    <template for:each={options} for:item="option">
+                        <option key={option.label} class="uiInputSelectOption" value={option.value}>{option.value}</option>
+                    </template>
+                </select>
+            </div>
+        </div>
+    </div>
+</template>
