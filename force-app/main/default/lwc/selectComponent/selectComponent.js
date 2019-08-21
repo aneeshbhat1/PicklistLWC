@@ -1,41 +1,31 @@
 import { LightningElement, api, wire, track } from 'lwc';
 import getPickListValues from '@salesforce/apex/PicklistController.getPickListValues';
-import getDependentOptions from '@salesforce/apex/PicklistController.getDependentOptions';
+import getFieldLabel from '@salesforce/apex/PicklistController.getFieldLabel';
 
 export default class SelectComponent extends LightningElement {
-    @api options;
-    @api selectedOption;
-    @api label;
-    @api isAttributeRequired = false;
-    // @api isComponentDisabled = false;
+    @track options;
+    @track selectedOption;
+    @track isAttributeRequired = false;
     @api fieldName;
     @api objectName;
-    @api controllingFieldName;
-    @api contrFieldValue;
-    dependentOptions;
+    @track fieldLabelName;
 
     connectedCallback() {
-        if(this.controllingFieldName) {
-            getDependentOptions({ objApiName: this.objectName, fieldName: this.fieldName, contrFieldApiName: this.controllingFieldName })
-            .then(data => {
-                debugger;
-                this.dependentOptions = data;
-                this.options = this.dependentOptions[this.contrFieldValue];
-            })
-            .catch(error => {
-                this.displayError(error);
-            });
-        }
-        else {
-            getPickListValues({ objApiName: this.objectName, fieldName: this.fieldName })
-            .then(data => {
-                debugger;
-                this.options = data;
-            })
-            .catch(error => {
-                this.displayError(error);
-            });
-        }
+        getPickListValues({ objApiName: this.objectName, fieldName: this.fieldName })
+        .then(data => {
+            this.options = data;
+        })
+        .catch(error => {
+            this.displayError(error);
+        });
+
+        getFieldLabel({objName:this.objectName,fieldName:this.fieldName})
+        .then(data => {
+            this.fieldLabelName = data;
+        })
+        .catch(error => {
+            this.displayError(error);
+        });
     }
 
     selectionChangeHandler(event) {
@@ -50,17 +40,6 @@ export default class SelectComponent extends LightningElement {
         else if (typeof error.body.message === 'string') {
             this.error = error.body.message;
         }
-    }
-
-    get conrollingFieldValue() {
-        debugger;
-        return this.conrollingFieldValue;
-    }
-
-    set controllingFieldValue(value) {
-        debugger;
-        this.contrFieldValue = value;
-        this.options = this.dependentOptions[value];
     }
 
     get isPicklistDisabled() {

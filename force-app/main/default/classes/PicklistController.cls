@@ -1,15 +1,4 @@
-/***********************************************************************************************************************
-Apex Class Name    : PicklistController
-Created Date       : 15/11/2018
-Function           : Server side Apex controller for Picklist component.
-Modification Log   :
-------------------------------------------------------------------------------------------------------------------------
- * Developer                   Date                   Description
- * ---------------------------------------------------------------------------------------------------------------------
- * Adam Siwek                  15/11/2018             Original Version
-***********************************************************************************************************************/
 public with sharing class PicklistController {
-
     @AuraEnabled
     public static List<Map<String, String>> getPickListValues(String objApiName, String fieldName) {
         List<Map<String, String>> options = new List<Map<String, String>>();
@@ -39,5 +28,10 @@ public with sharing class PicklistController {
     @AuraEnabled
     public static Map<Object, List<Map<String, String>>> getDependentOptions(String objApiName, String fieldName, String contrFieldApiName) {
         return FieldUtilityClass.getFieldDependenciesMaps(objApiName,contrFieldApiName, fieldName);
+    }
+
+    @AuraEnabled
+    public static String getFieldLabel(String objName, String fieldName) {
+        return FieldUtilityClass.getFieldLabel(objName, fieldName);
     }
 }
