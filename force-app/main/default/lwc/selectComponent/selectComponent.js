@@ -1,5 +1,6 @@
-import { LightningElement, api, wire, track } from 'lwc';
+import { LightningElement, api, track } from 'lwc';
 import getPickListValues from '@salesforce/apex/PicklistController.getPickListValues';
+import getDependentOptions from '@salesforce/apex/PicklistController.getDependentOptions';
 import getFieldLabel from '@salesforce/apex/PicklistController.getFieldLabel';
 
 export default class SelectComponent extends LightningElement {
@@ -8,16 +9,33 @@ export default class SelectComponent extends LightningElement {
     @track isAttributeRequired = false;
     @api fieldName;
     @api objectName;
+    @api controllingFieldName;
+    contrFieldValue;
     @track fieldLabelName;
+    dependentOptions;
 
     connectedCallback() {
-        getPickListValues({ objApiName: this.objectName, fieldName: this.fieldName })
-        .then(data => {
-            this.options = data;
-        })
-        .catch(error => {
-            this.displayError(error);
-        });
+        if(this.controllingFieldName) {
+            getDependentOptions({ objApiName: this.objectName, fieldName: this.fieldName, contrFieldApiName: this.controllingFieldName })
+            .then(data => {
+                this.dependentOptions = data;
+                if(this.contrFieldValue) {
+                    this.options = this.dependentOptions[this.contrFieldValue];
+                }
+            })
+            .catch(error => {
+                this.displayError(error);
+            });
+        }
+        else {
+            getPickListValues({ objApiName: this.objectName, fieldName: this.fieldName })
+            .then(data => {
+                this.options = data;
+            })
+            .catch(error => {
+                this.displayError(error);
+            });
+        }
 
         getFieldLabel({objName:this.objectName,fieldName:this.fieldName})
         .then(data => {
@@ -39,6 +57,18 @@ export default class SelectComponent extends LightningElement {
         }
         else if (typeof error.body.message === 'string') {
             this.error = error.body.message;
+        }
+    }
+
+    @api
+    get controllingFieldValue() {
+        return this.contrFieldValue;
+    }
+
+    set controllingFieldValue(value) {
+        this.contrFieldValue = value;
+        if(value) {
+            this.options = this.dependentOptions[value];
         }
     }
 
