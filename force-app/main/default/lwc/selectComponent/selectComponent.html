@@ -6,7 +6,7 @@
             </template>
             <span class="">{fieldLabelName}</span>
         </label>
-        <div class="slds-form-element__control">
+        <div class="slds-form-element__control" if:false={isMultiSelect}>
             <div class="slds-select_container">
                 <select class="slds-select" 
                         onchange={selectionChangeHandler} 
@@ -17,6 +17,28 @@
                         <option key={option.label} class="uiInputSelectOption" value={option.value}>{option.value}</option>
                     </template>
                 </select>
+            </div>
+        </div>
+        <div class={mainDivClassAttr} if:true={isMultiSelect}>
+            <button class="slds-button slds-button--neutral slds-picklist__label" aria-haspopup="true" 
+                    onclick={handleMouseEnter} 
+                    onmouseleave={handleMouseLeave}>
+                <span class="slds-truncate">{selectedOptions}</span>
+                <lightning-icon icon-name="utility:down" size="medium" class="slds-icon slds-text-align_right" ></lightning-icon>
+            </button>
+            <div class="slds-dropdown slds-dropdown--left" 
+                onmouseenter={handleMouseEnter}
+                onmouseleave={handleMouseLeave}>
+                <ul class={multiSelectClassAttr} role="menu">
+                    <template for:each={options} for:item="option">
+                        <div class="slds-form-element slds-p-around_xx-small" key={option.label}>
+                            <lightning-input type="checkbox" 
+                                            label={option.label}
+                                            checked={option.isSelected} 
+                                            onchange={handleSelection}></lightning-input>
+                        </div>
+                    </template>
+                </ul>
             </div>
         </div>
     </div>
