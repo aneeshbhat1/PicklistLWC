@@ -45,4 +45,46 @@ public with sharing class FieldUtilityClass {
         List<Schema.PicklistEntry> dependentValues = objFieldMap.get(dependentField).getDescribe().getPicklistValues();
         return getFieldDependenciesMaps(dependentValues, controllingValues);
     }
+
+    private static Map<Object, List<Map<String,String>>> getFieldDependenciesMaps(List<Schema.PicklistEntry> dependentValues, List<Schema.PicklistEntry> controllingValues) {
+        Map<Object, List<Map<String,String>>> controllingInfo = new Map<Object, List<Map<String,String>>>();
+
+        for (Schema.PicklistEntry currControllingValue : controllingValues) {
+            controllingInfo.put(currControllingValue.getValue(), new List<Map<String,String>>());
+        }
+
+        for (Schema.PicklistEntry currDependentValue : dependentValues) {
+
+            String jsonString = JSON.serialize(currDependentValue);
+            PicklistDetails info = (PicklistDetails) JSON.deserialize(jsonString, PicklistDetails.class);
+            if(info.validFor == null) {
+                continue;
+            }
+            String hexString = EncodingUtil.convertToHex(EncodingUtil.base64Decode(info.validFor)).toUpperCase();
+            Integer baseCount = 0;
+            for (Integer curr : hexString.getChars()) {
+                Integer val = 0;
+                if (curr >= 65) {
+                    val = curr - 65 + 10;
+                }
+                else {
+                    val = curr - 48;
+                }
+                if ((val & 8) == 8) {
+                    controllingInfo.get(controllingValues[baseCount + 0].getValue()).add(new Map<String, String>{'value' => currDependentValue.getValue(), 'label' => currDependentValue.getLabel()});
+                }
+                if ((val & 4) == 4) {
+                    controllingInfo.get(controllingValues[baseCount + 1].getValue()).add(new Map<String, String>{'value' => currDependentValue.getValue(), 'label' => currDependentValue.getLabel()});
+                }
+                if ((val & 2) == 2) {
+                    controllingInfo.get(controllingValues[baseCount + 2].getValue()).add(new Map<String, String>{'value' => currDependentValue.getValue(), 'label' => currDependentValue.getLabel()});
+                }
+                if ((val & 1) == 1) {
+                    controllingInfo.get(controllingValues[baseCount + 3].getValue()).add(new Map<String, String>{'value' => currDependentValue.getValue(), 'label' => currDependentValue.getLabel()});
+                }
+                baseCount += 4;
+            }
+        }
+        return controllingInfo;
+    }
 }
