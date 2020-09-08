@@ -50,6 +50,9 @@ export default class SelectComponent extends LightningElement {
                 this.displayError(error);
             });
         }
+        else {
+            this.fieldLabelName = this.label;
+        }
     }
 
     selectionChangeHandler(event) {
